@@ -1,0 +1,366 @@
+:root {
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  color: #edf2ff;
+  background: #07111f;
+  line-height: 1.5;
+  font-weight: 400;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  background:
+    radial-gradient(circle at top, rgba(76, 122, 255, 0.28), transparent 30%),
+    linear-gradient(180deg, #08101d 0%, #07111f 100%);
+}
+
+button {
+  font: inherit;
+}
+
+.app-shell {
+  min-height: 100vh;
+  padding: 32px;
+}
+
+.hero {
+  max-width: 1280px;
+  margin: 0 auto 28px;
+  padding: 36px;
+  border: 1px solid rgba(160, 177, 255, 0.14);
+  border-radius: 28px;
+  background: rgba(7, 17, 31, 0.82);
+  backdrop-filter: blur(20px);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.28);
+}
+
+.hero-copy {
+  max-width: 880px;
+}
+
+.eyebrow {
+  display: inline-flex;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: rgba(82, 119, 255, 0.14);
+  color: #aabfff;
+  font-size: 0.82rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.hero h1 {
+  margin: 16px 0 14px;
+  font-size: clamp(2.4rem, 5vw, 4.4rem);
+  line-height: 1.05;
+  letter-spacing: -0.05em;
+}
+
+.hero p {
+  max-width: 760px;
+  font-size: 1.05rem;
+  color: #bfcaea;
+}
+
+.hero-meta {
+  display: flex;
+  gap: 18px;
+  flex-wrap: wrap;
+  margin-top: 22px;
+}
+
+.hero-meta div {
+  padding: 14px 16px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.hero-meta strong,
+.hero-meta span {
+  display: block;
+}
+
+.content-grid {
+  max-width: 1280px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1.7fr) minmax(320px, 0.9fr);
+  gap: 24px;
+}
+
+.sidebar {
+  display: grid;
+  gap: 24px;
+  align-content: start;
+}
+
+.panel {
+  border-radius: 24px;
+  padding: 24px;
+  background: rgba(8, 18, 34, 0.92);
+  border: 1px solid rgba(160, 177, 255, 0.1);
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.22);
+}
+
+.panel-large {
+  padding: 24px;
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.panel-header.compact {
+  margin-bottom: 14px;
+}
+
+.panel-header h2,
+.parlay-card h2 {
+  margin: 0 0 4px;
+  font-size: 1.25rem;
+}
+
+.panel-header p,
+.parlay-card p,
+.muted,
+.saved-item p,
+.saved-item span,
+.pick-topline,
+.event-label,
+.reasoning,
+.empty-state {
+  color: #9fb0d4;
+}
+
+.cards {
+  display: grid;
+  gap: 18px;
+}
+
+.pick-card,
+.parlay-card,
+.saved-item {
+  border-radius: 22px;
+  padding: 20px;
+  background: linear-gradient(180deg, rgba(16, 31, 58, 0.85), rgba(9, 20, 37, 0.92));
+  border: 1px solid rgba(140, 162, 255, 0.12);
+}
+
+.pick-rank {
+  display: inline-flex;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(114, 143, 255, 0.14);
+  color: #d5e0ff;
+  font-size: 0.78rem;
+  margin-bottom: 12px;
+}
+
+.pick-topline {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 0.88rem;
+}
+
+.pick-card h3,
+.parlay-card h3 {
+  margin: 10px 0 4px;
+  font-size: 1.5rem;
+}
+
+.pick-metrics,
+.stats-grid,
+.parlay-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin: 18px 0;
+}
+
+.stats-grid {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.pick-metrics div,
+.stats-grid div,
+.parlay-grid div {
+  padding: 14px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.pick-metrics span,
+.stats-grid span,
+.parlay-grid span {
+  display: block;
+  font-size: 0.78rem;
+  color: #9fb0d4;
+  margin-bottom: 6px;
+}
+
+.pick-metrics strong,
+.stats-grid strong,
+.parlay-grid h3 {
+  font-size: 1.15rem;
+  color: #ffffff;
+  margin: 0;
+}
+
+.primary-btn,
+.secondary-btn,
+.result-buttons button {
+  border: 0;
+  border-radius: 14px;
+  padding: 12px 14px;
+  cursor: pointer;
+  transition: transform 0.18s ease, opacity 0.18s ease;
+}
+
+.primary-btn {
+  width: 100%;
+  background: linear-gradient(135deg, #4f7fff, #70a0ff);
+  color: white;
+  font-weight: 700;
+}
+
+.secondary-btn {
+  background: rgba(255, 255, 255, 0.08);
+  color: #eaf0ff;
+}
+
+.primary-btn:hover,
+.secondary-btn:hover,
+.result-buttons button:hover {
+  transform: translateY(-1px);
+  opacity: 0.94;
+}
+
+.legs-list {
+  list-style: none;
+  padding: 0;
+  margin: 18px 0;
+  display: grid;
+  gap: 12px;
+}
+
+.legs-list li {
+  display: grid;
+  gap: 2px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.legs-list em {
+  color: #a9c1ff;
+  font-style: normal;
+}
+
+.warning-box,
+.empty-state,
+.error {
+  margin-top: 18px;
+  padding: 14px;
+  border-radius: 16px;
+  background: rgba(255, 204, 0, 0.08);
+  border: 1px solid rgba(255, 204, 0, 0.18);
+}
+
+.error {
+  background: rgba(255, 93, 93, 0.08);
+  border-color: rgba(255, 93, 93, 0.18);
+}
+
+.saved-list {
+  display: grid;
+  gap: 14px;
+}
+
+.saved-item {
+  display: grid;
+  gap: 14px;
+}
+
+.saved-actions {
+  display: grid;
+  gap: 10px;
+}
+
+.result-buttons {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.result-buttons button {
+  background: rgba(255, 255, 255, 0.06);
+  color: #edf2ff;
+}
+
+.status-pill {
+  display: inline-flex;
+  width: fit-content;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  text-transform: capitalize;
+}
+
+.status-pill.pending {
+  background: rgba(255, 193, 7, 0.14);
+  color: #ffd76a;
+}
+
+.status-pill.won {
+  background: rgba(45, 211, 111, 0.14);
+  color: #7cf4ac;
+}
+
+.status-pill.lost {
+  background: rgba(255, 93, 93, 0.14);
+  color: #ff9c9c;
+}
+
+@media (max-width: 1024px) {
+  .content-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 720px) {
+  .app-shell {
+    padding: 16px;
+  }
+
+  .hero,
+  .panel,
+  .pick-card,
+  .parlay-card,
+  .saved-item {
+    padding: 18px;
+  }
+
+  .pick-metrics,
+  .parlay-grid,
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .pick-topline {
+    flex-direction: column;
+  }
+}
