@@ -5,7 +5,7 @@ A Vite + React web app that surfaces daily sports betting recommendations for NB
 ## What it does
 
 - Pulls live odds from a real odds API
-- Targets a bookmaker feed via `VITE_TARGET_BOOKMAKER` (default: `hardrockbet`)
+- Targets a bookmaker feed via server env `TARGET_BOOKMAKER` (default: `hardrockbet`)
 - Shows 3 recommended daily singles based on current moneyline implied probability
 - Builds 1 three-leg parlay from the top singles
 - Lets users save recommendations locally
@@ -21,15 +21,16 @@ This app does **not** guarantee winnings and should not present gambling outcome
 This project is wired for a live odds API via environment variables. By default it uses The Odds API style endpoints:
 
 - Base: `https://api.the-odds-api.com/v4`
-- Env var: `VITE_ODDS_API_KEY`
+- Server env var: `ODDS_API_KEY`
 
-If `hardrockbet` is unsupported by your odds provider, switch `VITE_TARGET_BOOKMAKER` to a supported bookmaker key, or adapt the fetch layer.
+If `hardrockbet` is unsupported by your odds provider, switch `TARGET_BOOKMAKER` to a supported bookmaker key, or adapt the fetch layer.
 
 ## Local setup
 
 ```bash
 npm install
 cp .env.example .env
+# then map values to server envs for deployment
 npm run dev
 ```
 
@@ -49,9 +50,9 @@ npm run preview
 1. Push repo to GitHub
 2. Import repo in Vercel
 3. Add environment variables in Vercel:
-   - `VITE_ODDS_API_KEY`
-   - `VITE_ODDS_API_BASE`
-   - `VITE_TARGET_BOOKMAKER`
+   - `ODDS_API_KEY`
+   - `ODDS_API_BASE`
+   - `TARGET_BOOKMAKER`
 4. Deploy
 
 ### Option B: Vercel CLI
@@ -63,7 +64,8 @@ vercel --prod
 
 ## Architecture
 
-- `src/App.tsx`: UI, odds fetch, recommendation ranking, parlay creation, local persistence
+- `src/App.tsx`: UI, saved picks, history, display logic
+- `api/odds.ts`: server-side live odds fetch and recommendation ranking
 - `src/App.css`: app styling
 - `localStorage`: saved picks and grading history
 

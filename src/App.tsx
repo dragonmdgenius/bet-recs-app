@@ -2,34 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { format } from 'date-fns'
 import './App.css'
 
-type SportKey = 'basketball_nba' | 'baseball_mlb' | 'soccer_epl' | 'soccer_uefa_champs_league' | 'soccer_usa_mls'
 type PickOutcome = 'pending' | 'won' | 'lost'
-
-type OddsMarket = {
-  key: string
-  last_update?: string
-  outcomes: Array<{
-    name: string
-    price: number
-    point?: number
-  }>
-}
-
-type Bookmaker = {
-  key: string
-  title: string
-  markets: OddsMarket[]
-}
-
-type OddsEvent = {
-  id: string
-  sport_key: SportKey
-  sport_title: string
-  commence_time: string
-  home_team: string
-  away_team: string
-  bookmakers: Bookmaker[]
-}
 
 type RecommendedPick = {
   id: string
@@ -50,23 +23,8 @@ type SavedPick = RecommendedPick & {
   status: PickOutcome
 }
 
-const SPORTS: Array<{ key: SportKey; label: string }> = [
-  { key: 'basketball_nba', label: 'NBA' },
-  { key: 'baseball_mlb', label: 'MLB' },
-  { key: 'soccer_epl', label: 'Soccer' },
-]
-
 const STORAGE_KEY = 'bet-recs-history-v1'
-const API_BASE = (import.meta.env.VITE_ODDS_API_BASE as string | undefined) || 'https://api.the-odds-api.com/v4'
-const API_KEY = import.meta.env.VITE_ODDS_API_KEY as string | undefined
-const BOOKMAKER_TARGET = ((import.meta.env.VITE_TARGET_BOOKMAKER as string | undefined) || 'hardrockbet').toLowerCase()
-
-function americanToConfidence(price: number) {
-  if (price < 0) {
-    return Math.round((Math.abs(price) / (Math.abs(price) + 100)) * 100)
-  }
-  return Math.round((100 / (price + 100)) * 100)
-}
+const BOOKMAKER_TARGET = 'hardrockbet'
 
 function toDisplayOdds(price: number) {
   return price > 0 ? `+${price}` : `${price}`
@@ -85,36 +43,6 @@ function getSavedPicks(): SavedPick[] {
 
 function persistPicks(picks: SavedPick[]) {
   window.localStorage.setItem(STORAGE_KEY, JSON.stringify(picks))
-}
-
-function rankRecommendation(event: OddsEvent, bookmaker: Bookmaker | undefined): RecommendedPick | null {
-  if (!bookmaker) return null
-  const h2h = bookmaker.markets.find((market) => market.key === 'h2h')
-  if (!h2h) return null
-
-  const sorted = [...h2h.outcomes].sort((a, b) => americanToConfidence(b.price) - americanToConfidence(a.price))
-  const best = sorted[0]
-  if (!best) return null
-
-  const confidence = americanToConfidence(best.price)
-  const startsSoon = new Date(event.commence_time).getTime() - Date.now() < 1000 * 60 * 60 * 24
-  const confidenceBoost = startsSoon ? 2 : 0
-
-  return {
-    id: `${event.id}-${best.name}`,
-    type: 'single',
-    sport: event.sport_title,
-    eventLabel: `${event.away_team} @ ${event.home_team}`,
-    market: 'Moneyline',
-    selection: best.name,
-    odds: best.price,
-    confidence: Math.min(confidence + confidenceBoost, 99),
-    commenceTime: event.commence_time,
-    reasoning:
-      confidence >= 60
-        ? `Market pricing from ${bookmaker.title} leans clearly toward ${best.name}. This is one of the stronger moneyline edges on the board right now.`
-        : `This is the cleanest available side from ${bookmaker.title} for this matchup, though edge strength is more moderate than elite.`,
-  }
 }
 
 function buildParlay(recommendations: RecommendedPick[]) {
@@ -143,49 +71,20 @@ function buildParlay(recommendations: RecommendedPick[]) {
   }
 }
 
-async function fetchOdds(): Promise<{ recommendations: RecommendedPick[]; warnings: string[] }> {
-  if (!API_KEY) {
-    return {
-      recommendations: [],
-      warnings: ['Missing VITE_ODDS_API_KEY. Add a live odds API key to enable real recommendations.'],
-    }
+async function fetchOdds(): Promise<{ recommendations: RecommendedPick[]; parlay?: RecommendedPick | null; warnings: string[] }> {
+  const res = await fetch('/api/odds')
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({ warnings: ['Failed to load live odds.'] }))
+    return { recommendations: [], parlay: null, warnings: data.warnings || ['Failed to load live odds.'] }
   }
-
-  const warnings: string[] = []
-  const responses = await Promise.all(
-    SPORTS.map(async ({ key }) => {
-      const url = `${API_BASE}/sports/${key}/odds?apiKey=${API_KEY}&regions=us&markets=h2h&oddsFormat=american&bookmakers=${BOOKMAKER_TARGET}`
-      const res = await fetch(url)
-      if (!res.ok) {
-        warnings.push(`Could not load ${key} odds (${res.status}).`)
-        return [] as OddsEvent[]
-      }
-      return (await res.json()) as OddsEvent[]
-    }),
-  )
-
-  const allEvents = responses.flat()
-  const recommendations = allEvents
-    .map((event) => {
-      const bookmaker = event.bookmakers.find((book) => book.key.toLowerCase() === BOOKMAKER_TARGET) || event.bookmakers[0]
-      if (!event.bookmakers.length) {
-        warnings.push(`No bookmaker lines returned for ${event.away_team} @ ${event.home_team}.`)
-      }
-      return rankRecommendation(event, bookmaker)
-    })
-    .filter((pick): pick is RecommendedPick => Boolean(pick))
-    .sort((a, b) => b.confidence - a.confidence)
-
-  return {
-    recommendations: recommendations.slice(0, 3),
-    warnings,
-  }
+  return res.json()
 }
 
 function App() {
   const [saved, setSaved] = useState<SavedPick[]>([])
   const [recommendations, setRecommendations] = useState<RecommendedPick[]>([])
   const [warnings, setWarnings] = useState<string[]>([])
+  const [serverParlay, setServerParlay] = useState<RecommendedPick | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -200,6 +99,7 @@ function App() {
       .then((data) => {
         if (cancelled) return
         setRecommendations(data.recommendations)
+        setServerParlay(data.parlay || null)
         setWarnings(data.warnings)
         setError(null)
       })
@@ -216,7 +116,7 @@ function App() {
     }
   }, [])
 
-  const parlay = useMemo(() => buildParlay(recommendations), [recommendations])
+  const parlay = useMemo(() => serverParlay || buildParlay(recommendations), [serverParlay, recommendations])
 
   function savePick(pick: RecommendedPick) {
     if (saved.some((item) => item.id === pick.id)) return
